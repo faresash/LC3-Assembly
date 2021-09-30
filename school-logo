@@ -1,0 +1,334 @@
+.ORIG x3000
+;NAME: Fares Elmetwally
+;DESCRIPTION: This program will illustrate the NCSU letters in red onto the display. The user then has the option of changing the colors
+; (red, green, blue, yellow, white) by using the keyboard. If the user chooses to quit, they can simply press "q" and this will display
+; a goodbye message and halt the program. Enjoy!
+
+;We will create the letters by first coloring in all the straight lines
+AND R1, R1, #0               ;R1 will deal with coordinates
+AND R2, R2, #0               ;R2 will deal with color
+AND R3, R3, #0               ;R3 will be our horizontal counter
+AND R4, R4, #0               ;R4 will be our vertical counter
+AND R5, R5, #0               ;R5 will contain #128 to move up and down rows
+LD R2, RED                   ;initial color is red
+NCSU                         ;this section of code makes the initial NCSU
+    LD R5, NEXTROW           ;R5 gets overwritten after this section
+    N1_LINE
+        LD R0, ValN4             ;this will always be the negative of the horizontal counter
+        LD R1, N_1               ;loads coordinate of first N line in R1
+        LD R3, Val4              ;we will use this as a horizontal counter (4)
+        ST R3, HORI_COUNT
+        LD R4, Val84             ;we will use this as a vertical counter (84)
+        JSR LINE                 ;we have now set up all the information to use in our subroutine
+    N2_LINE
+        LD R0, ValN4
+        LD R1, N_2               ;we will draw the same thing but using a new coordinate
+        LD R3, Val4              
+        ST R3, HORI_COUNT
+        LD R4, Val84             
+        JSR LINE                 ;jump back to the subroutine but using the new coordinate
+    N3_LINE                      ;this is the little 2x6 rectangle that comes before the diagonal line
+        LD R0, ValN2
+        LD R1, N_3
+        LD R3, Val2              
+        ST R3, HORI_COUNT
+        LD R4, Val6             
+        JSR LINE
+    DIAGONAL                      ;we will color the diagonal line here
+        LD R1, N_4                ;this is the initial coordinate
+        LD R6, Val8               ;there are 8 pairs of big and small rectangles
+        N4A_LINE                  ;first a 3x5 square is drawn here
+            LD R0, ValN3
+            LD R3, Val3              
+            ST R3, HORI_COUNT
+            LD R4, Val5 
+            JSR LINE
+            LD R7, NEXTBOX
+            ADD R1, R1, #1        ;then we move to the next box   
+        N4B_LINE          
+            LD R0, ValN3
+            LD R3, Val3              
+            ST R3, HORI_COUNT
+            LD R4, Val4             
+            JSR LINE
+            LD R7, NEXTBOX
+            ADD R1, R1, #1
+            ADD R6, R6, #-1       ;we have made a pair, count it
+            BRp N4A_LINE
+    N5_LINE
+        LD R0, ValN2             
+        LD R3, Val2              
+        ST R3, HORI_COUNT
+        LD R4, Val6             
+        JSR LINE
+    N_DETAIL                       ;this section is more about detailing
+        LD R1, NDET1    
+        LD R3, Val8
+        JSR DETAILING              ;we will jump to a section of code that colors straight lines for finer details
+        LD R1, NDET2               ;all we have to do is load the coordinate and the length of line
+        LD R3, Val6
+        JSR DETAILING
+        LD R1, NDET3
+        LD R3, Val8
+        JSR DETAILING
+        LD R1, NDET4
+        LD R3, Val6
+        JSR DETAILING
+    C1_LINE                        ;the rest function the same way as the "N"
+        LD R0, ValN4
+        LD R1, C_1
+        LD R3, Val4              
+        ST R3, HORI_COUNT
+        LD R4, Val84             
+        JSR LINE
+    C2_LINE
+        LD R0, ValN26
+        LD R1, C_1
+        LD R3, Val26             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    C3_LINE
+        LD R0, ValN26
+        LD R1, C_3
+        LD R3, Val26             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    C4_LINE
+        LD R0, ValN4
+        LD R1, C_4
+        LD R3, Val4             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    C5_LINE
+        LD R0, ValN4
+        LD R1, C_5
+        LD R3, Val4             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    C_DETAIL
+        LD R1, CDET1
+        LD R3, Val6
+        JSR DETAILING
+        LD R1, CDET2
+        LD R3, Val6
+        JSR DETAILING
+    S1_LINE
+        LD R0, ValN26
+        LD R1, S_1
+        LD R3, Val26             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    S2_LINE
+        LD R0, ValN4
+        LD R1, S_2
+        LD R3, Val4              
+        ST R3, HORI_COUNT
+        LD R4, Val44             
+        JSR LINE 
+    S3_LINE
+        LD R0, ValN26
+        LD R1, S_3
+        LD R3, Val26             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    S4_LINE
+        LD R0, ValN4
+        LD R1, S_4
+        LD R3, Val4              
+        ST R3, HORI_COUNT
+        LD R4, Val44             
+        JSR LINE 
+    S5_LINE
+        LD R0, ValN26
+        LD R1, S_5
+        LD R3, Val26             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    S6_LINE
+        LD R0, ValN4
+        LD R1, S_6
+        LD R3, Val4             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    S7_LINE
+        LD R0, ValN4
+        LD R1, S_7
+        LD R3, Val4             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    S_DETAIL
+        LD R1, SDET1
+        LD R3, Val6
+        JSR DETAILING
+        LD R1, SDET2
+        LD R3, Val6
+        JSR DETAILING
+    U1_LINE
+        LD R0, ValN4
+        LD R1, U_1               
+        LD R3, Val4              
+        ST R3, HORI_COUNT
+        LD R4, Val84             
+        JSR LINE
+    U2_LINE
+        LD R0, ValN26
+        LD R1, U_2
+        LD R3, Val26             
+        ST R3, HORI_COUNT
+        LD R4, Val4              
+        JSR LINE
+    U3_LINE
+        LD R0, ValN4
+        LD R1, U_3               
+        LD R3, Val4              
+        ST R3, HORI_COUNT
+        LD R4, Val84             
+        JSR LINE
+    U_DETAIL
+        LD R1, UDET1
+        LD R3, Val8
+        JSR DETAILING
+        LD R1, UDET2
+        LD R3, Val6
+        JSR DETAILING
+        LD R1, UDET3
+        LD R3, Val8
+        JSR DETAILING
+        LD R1, UDET4
+        LD R3, Val6
+        JSR DETAILING
+    BR INPUT
+
+INPUT                                ;in this section we will prompt a user to input a color or quit instruction
+    GETC                             
+    LD R1, ValR                      ;puts negative value of ASCII "r" in R1 and compares it to the input
+    ADD R1, R0, R1                 
+    BRz REDCHANGE                    ;if R1 = R0 - "r" is zero, then the user intends to change the color to red
+    LD R1, ValG
+    ADD R1, R0, R1
+    BRz GREENCHANGE
+    LD R1, ValB
+    ADD R1, R0, R1
+    BRz BLUECHANGE
+    LD R1, ValY
+    ADD R1, R0, R1
+    BRz YELLOWCHANGE
+    LD R1, ValSP
+    ADD R1, R0, R1
+    BRz WHITECHANGE
+    LD R1, ValQ
+    ADD R1, R0, R1
+    BRz QUIT
+    BR INPUT
+    REDCHANGE
+        LD R2, RED
+        BR NCSU
+    GREENCHANGE
+        LD R2, GREEN
+        BR NCSU
+    BLUECHANGE 
+        LD R2, BLUE
+        BR NCSU
+    YELLOWCHANGE
+        LD R2, YELLOW
+        BR NCSU
+    WHITECHANGE
+        LD R2, WHITE
+        BR NCSU
+    QUIT
+        LEA R0, THANKS
+        PUTS
+        LD R0, ValLF
+        OUT
+        HALT
+
+LINE
+    ROWFILL
+        STR R2, R1, #0       
+        ADD R1, R1, #1
+        ADD R3, R3, #-1
+        BRp ROWFILL
+    NEWROW
+        LD R3, HORI_COUNT
+        ADD R1, R1, R0
+        ADD R1, R1, R5
+        ADD R4, R4, #-1
+        BRp ROWFILL
+    RET
+    
+DETAILING
+    STR R2, R1, #0
+    ADD R1, R1, #1
+    ADD R3, R3, #-1
+    BRp DETAILING
+    RET 
+NEXTBOX .FILL #1
+NEXTROW .FILL #128
+HORI_COUNT .FILL #4
+ValN4 .FILL #-4
+N_1 .FILL xCA06
+N_2 .FILL xCA1C
+N_3 .FILL xCA0A
+N_4 .FILL xCD0A
+N_5 .FILL xF11C
+C_1 .FILL xCA24
+C_3 .FILL xF224
+C_4 .FILL xCC3A
+C_5 .FILL xF03A
+S_1 .FILL xCA42
+S_2 .FILL xCA42
+S_3 .FILL xDE42
+S_4 .FILL xDE58
+S_5 .FILL xF242
+S_6 .FILL xCC58
+S_7 .FILL xF042
+U_1 .FILL xCA60
+U_2 .FILL xF260
+U_3 .FILL xCA76
+RED .FILL x7C00
+GREEN .FILL x03E0
+BLUE .FILL x001F
+YELLOW .FILL x7FED
+WHITE .FILL x7FFF
+Val2 .FILL #2
+Val3 .FILL #3
+Val4 .FILL #4
+Val5 .FILL #5
+Val6 .FILL #6
+Val8 .FILL #8
+ValN2 .FILL #-2
+ValN3 .FILL #-3
+Val26 .FILL #26
+ValN26 .FILL #-26
+Val44 .FILL #44
+Val84 .FILL #84
+NDET1 .FILL xF384
+NDET2 .FILL xF305
+NDET3 .FILL xCA1A
+NDET4 .FILL xCA9B
+CDET1 .FILL xCDB9
+CDET2 .FILL xF039
+SDET1 .FILL xCDD7
+SDET2 .FILL xF041
+UDET1 .FILL xCA5E
+UDET2 .FILL xCADF
+UDET3 .FILL xCA74
+UDET4 .FILL xCAF5
+ValR .FILL #-114
+ValG .FILL #-103
+ValB .FILL #-98
+ValY .FILL #-121
+ValSP .FILL #-32
+ValQ .FILL #-113
+ValLF .FILL #10
+THANKS .STRINGZ "Thank you for playing"
+.END
