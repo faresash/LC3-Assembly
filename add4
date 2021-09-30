@@ -1,0 +1,331 @@
+;NAME: Fares Elmetwally
+;Submission Date: 3/24/2020
+
+;Description: In this program, a user is prompted to input two positive numbers, a start number and an end number. The numbers must be below 
+; 34, but the user can choose which one is bigger. Inputting a non-numeric character other than "q" will not produce anything and the program 
+; will wait for a number. The program will find the sum of every fourth number between the two inputs plus the starting number and display the 
+; result right after the user is done. If the user wishes to quit the program, they can simply tap the "q" button and will be met with a goodbye
+; message.
+
+.ORIG x3000
+
+;Clearing registers
+	AND R0, R0, #0
+	AND R1, R1, #0
+	AND R2, R2, #0
+	AND R3, R3, #0
+	AND R4, R4, #0
+	AND R5, R5, #0
+	AND R6, R6, #0
+	AND R7, R7, #0
+	
+;The following prompts the user for their first number (Input A):
+INPUT_A
+	LEA R0, PROMPT_A   ;loads the effective address of label INPUT_A into R0
+	PUTS               ;displays the first prompt string
+LOOP_A10               ;this loop looks for a number in the 10's place
+    GETC               ;requests input, stores in R0
+    OUT                ;echoes input back to user
+	LD R1, VALq        ;loads the negative of ASCII "q" into R1
+    ADD R1, R0, R1     ;R1 = input char. - q
+    BRz QUIT           ;if it's zero, the character was "q", go to QUIT
+	LD R1, VAL0        ;loads the negative of ASCII "0" into R1
+    ADD R1, R0, R1     ;R1 = input char. - zero
+    BRn LOOP_A10       ;goes back to LOOP_A10 if zero is greater than input char.
+    LD R1, VAL9        ;loads the negative of ASCII "9" into R1
+    ADD R1, R0, R1     ;R1 = input char. - nine
+    BRp LOOP_A10       ;goes back to LOOP_A10 if input char. is greater than nine
+	LD R1, ASCII_TO_DEC;loads #-48 into R1
+	ADD R0, R0, R1     ;deducts the "legal" number entered by the user by 48 to turn it from an ASCII character into decimal/hex
+	ST R0, A10         ;stores a number that is now considered "legal" (0-9) into an address labeled by A10
+	BR LOOP_A1         ;the program will only move to the next loop if the user enters a legal number
+LOOP_A1                ;this loop looks for a number in the 1's place (a potential second digit)
+	GETC 
+	OUT
+	LD R1, VALenter    ;loads the negative of ASCII "linefeed/enter key" into R1
+	ADD R1, R0, R1     ;R1 = input char. - enter
+	BRz LINEFEED_A     ;if it is enter, the user intends to have a number smaller than 10
+	LD R1, VALq        ;loads the negative of ASCII "q" into R1
+    ADD R1, R0, R1     ;R1 = input char. - q
+    BRz QUIT           ;if it's zero, the character was "q"
+	LD R1, VAL0        ;loads the negative of ASCII "0" into R1
+    ADD R1, R0, R1     ;R1 = input char. - zero
+    BRn LOOP_A1        ;goes back to LOOP_A1 if zero is greater than input char.
+    LD R1, VAL9        ;loads the negative of ASCII "9" into R1
+    ADD R1, R0, R1     ;R1 = input char. - nine
+    BRp LOOP_A1        ;goes back to LOOP_A1 if input char. is greater than nine
+	LD R1, ASCII_TO_DEC;loads #-48 into R1
+	ADD R0, R0, R1     
+	ST R0, A1          ;stores a character that is now considered "legal" into an address labeled by A1
+	LD R0, VALlf
+	OUT
+	BR VALUE_A         ;now the first and second number are ready to be processed together to make a full 2-digit value (Value of Input A)
+LINEFEED_A
+	LD R1, A10         ;loads the value labeled by A10 into R1
+	ST R1, A1          ;stores that value in label A1 (because we know the user only wants a single digit)
+	AND R1, R1, #0     ;clears R1
+	ST R1, A10         ;uses R1 to clear the contents of A10
+	BR VALUE_A         
+VALUE_A
+	LD R1, A10         ;load the first digit from label A10 to R1
+	LD R2, A1          ;load the second digit from label A1 to R2
+	BR MULTIPLY_AND_ADD_A
+; R1 - first digit (COUNTER)
+; R2 - second digit
+; R3 - ACCUMULATOR
+; R4 - total number ([10*first digit] + second digit) 
+MULTIPLY_AND_ADD_A
+	ADD R1, R1, #-1     ;initializes the counter by subtracting 1 (makes sure first digit is non-zero)
+	BRn NEXT_A          ;once the counter is negtive, the loop would've happened a "first digit" number of times
+	ADD R3, R3, #10     ;this adds 10 to the accumulator each time it is looped
+	BR MULTIPLY_AND_ADD_A ;loops back until the counter is negative (-1).
+NEXT_A
+	ADD R4, R3, R2
+	ST R4, NUMBER_A
+	BR CLEAR
+
+CLEAR 
+	AND R0, R0, #0
+	AND R1, R1, #0
+	AND R2, R2, #0
+	AND R3, R3, #0
+	AND R4, R4, #0
+	AND R5, R5, #0
+	AND R6, R6, #0
+	AND R7, R7, #0
+	BR INPUT_B
+;The following prompts the user for their second number (Input B):
+INPUT_B
+	LEA R0, PROMPT_B   ;loads the effective address of label INPUT_B into R0
+	PUTS               ;displays the first prompt string
+LOOP_B10               ;this loop looks for a number in the 10's place
+    GETC               ;requests input, stores in R0
+    OUT                ;echoes input back to user
+	LD R1, VALq        ;loads the negative of ASCII "q" into R1
+    ADD R1, R0, R1     ;R1 = input char. - q
+    BRz QUIT           ;if it's zero, the character was "q", go to QUIT
+	LD R1, VAL0        ;loads the negative of ASCII "0" into R1
+    ADD R1, R0, R1     ;R1 = input char. - zero
+    BRn LOOP_B10       ;goes back to LOOP_B10 if zero is greater than input char.
+    LD R1, VAL9        ;loads the negative of ASCII "9" into R1
+    ADD R1, R0, R1     ;R1 = input char. - nine
+    BRp LOOP_B10       ;goes back to LOOP_B10 if input char. is greater than nine
+	LD R1, ASCII_TO_DEC;loads #-48 into R1
+	ADD R0, R0, R1     ;deducts the "legal" number entered by the user by 48 to turn it from an ASCII character into decimal/hex
+	ST R0, C10         ;stores a number that is now considered "legal" (0-9) into an address labeled by C10
+	BR LOOP_B1         ;the program will only move to the next loop if the user enters a legal number
+LOOP_B1                ;this loop looks for a number in the 1's place (a potential second digit)
+	GETC 
+	OUT
+	LD R1, VALenter    ;loads the negative of ASCII "linefeed/enter key" into R1
+	ADD R1, R0, R1     ;R1 = input char. - enter
+	BRz LINEFEED_B     ;if it is enter, the user intends to have a number smaller than 10
+	LD R1, VALq        ;loads the negative of ASCII "q" into R1
+    ADD R1, R0, R1     ;R1 = input char. - q
+    BRz QUIT           ;if it's zero, the character was "q"
+	LD R1, VAL0        ;loads the negative of ASCII "0" into R1
+    ADD R1, R0, R1     ;R1 = input char. - zero
+    BRn LOOP_B1        ;goes back to LOOP_B1 if zero is greater than input char.
+    LD R1, VAL9        ;loads the negative of ASCII "9" into R1
+    ADD R1, R0, R1     ;R1 = input char. - nine
+    BRp LOOP_B1        ;goes back to LOOP_B1 if input char. is greater than nine
+	LD R1, ASCII_TO_DEC;loads #-48 into R1
+	ADD R0, R0, R1     
+	ST R0, C1          ;stores a character that is now considered "legal" into an address labeled by C1
+	LD R0, VALlf     ;let's put a linefeed to prepare for the next string
+	OUT
+	BR VALUE_B         ;now the first and second number are ready to be processed together to make a full 2-digit value (Value of Input A)
+LINEFEED_B
+	LD R1, C10         ;loads the value labeled by B10 into R1
+	ST R1, C1          ;stores that value in label B1 (because we know the user only wants a single digit)
+	AND R1, R1, #0     ;clears R1
+	ST R1, C10         ;uses R1 to clear the contents of B10
+	BR VALUE_B         
+VALUE_B
+	LD R1, C10         ;load the first digit from label B10 to R1
+	LD R2, C1          ;load the second digit from label B1 to R2
+	BR MULTIPLY_AND_ADD_B
+QUIT
+	LD R0, VALlf
+	OUT
+    LEA R0, q_EXIT
+    PUTS
+	LD R0, VALlf
+	OUT
+    HALT
+; R1 - first digit (COUNTER)
+; R2 - second digit
+; R3 - ACCUMULATOR
+; R4 - total number ([10*first digit] + second digit) 
+
+MULTIPLY_AND_ADD_B
+	ADD R1, R1, #-1     ;initializes the counter by subtracting 1 (makes sure first digit is non-zero)
+	BRn NEXT_B          ;once the counter is negtive, the loop would've happened a "first digit" number of times
+	ADD R3, R3, #10     ;this adds 10 to the accumulator each time it is looped
+	BR MULTIPLY_AND_ADD_B ;loops back until the counter is negative (-1).
+NEXT_B
+	ADD R4, R3, R2      ;combines the 10's place and 1's place digits
+	ST R4, NUMBER_B     
+	AND R0, R0, #0      ;clears registers for use
+	AND R1, R1, #0
+	AND R2, R2, #0
+	AND R3, R3, #0
+	AND R4, R4, #0
+	AND R5, R5, #0
+	AND R6, R6, #0
+	AND R7, R7, #0
+	BR WHICHBIGGER
+
+WHICHBIGGER              ;checks to see whether A or B is larger
+	LD R0, NUMBER_A      ;loads A and B in R0 and R1
+	LD R1, NUMBER_B
+	ADD R2, R0, #0       ;this static register is needed in case inputs A and B were equal
+	NOT R1, R1
+	ADD R1, R1, #1       ;makes value in R1 negative
+	ADD R0, R0, R1       ;R0 = R0 - R1
+	BRn B_IS_BIGGER      ;if its negative, B > A
+	BRz EQUAL            ;if its equal, A = B
+	BRp A_IS_BIGGER      ;if its positive, A > B
+B_IS_BIGGER
+	; R0: Small Num. (A) with the addition of 4s
+	; R1: - Big Num. (-B)
+	; R2: Checker
+	; R3: Accumulator A + 4A + 8A + ...
+	; R4: Small Num. (A) unchanged
+	LD R0, NUMBER_A      ;loads A into R0
+	LD R1, NUMBER_B      ;loads B into R1
+	ADD R4, R0, #0       ;puts A into R4
+	NOT R1, R1           
+	ADD R1, R1, #1       ;makes R1 (B) negative
+	ADD4B                ;now we start with the adding
+		ADD R0, R0, #4   ;R0 = A + 4
+		ADD R2, R0, R1   ;R2 = R0 - B
+		BRnz ACCUMULATOR_B; if the result of that is zero or negative, we are good to add that to the accumulator
+		BRp DONE_B       ;if the result of that is positive, that means we have exceeded our upper bound (Big Num.)
+		ACCUMULATOR_B 
+			ADD R3, R3, R0 ;this is where the 4B + 8B + 12B + ... happens
+			BR ADD4B     ;we must loop back to see if we can still fit more additions of 4
+		DONE_B           ;the accumulator is now full and there exists no 4th number beyond here
+		ADD R3, R3, R4   ;we need to add the smaller number to the accumulator because we hadn't done that yet
+		ST R3, RESULT	 ;it's done! store that value in RESULT
+		BR CONVERSION
+EQUAL
+	ST R2, RESULT	      ;if A and B are equal, the sum of every fourth number is just one of the numbers
+	BR CONVERSION
+A_IS_BIGGER
+; R0: Small Num. (B) with the addition of 4s
+	; R1: - Big Num. (-A)
+	; R2: Checker
+	; R3: Accumulator B + 4B + 8B + ...
+	; R4: Small Num. (B) unchanged
+	LD R0, NUMBER_B      ;loads B into R0
+	LD R1, NUMBER_A      ;loads A into R1
+	ADD R4, R0, #0       ;puts B into R4
+	NOT R1, R1           
+	ADD R1, R1, #1       ;makes R1 (A) negative
+	ADD4A                ;now we start with the adding
+		ADD R0, R0, #4   ;R0 = B + 4
+		ADD R2, R0, R1   ;R2 = R0 - A
+		BRnz ACCUMULATOR_A;if the result of that is zero or negative, we are good to add that to the accumulator
+		BRp DONE_A       ;if the result of that is positive, that means we have exceeded our upper bound (Big Num.)
+		ACCUMULATOR_A 
+			ADD R3, R3, R0 ;this is where the 4B + 8B + 12B + ... happens
+			BR ADD4A     ;we must loop back to see if we can still fit more additions of 4
+		DONE_A           ;the accumulator is now full and there exists no 4th number beyond here
+		ADD R3, R3, R4   ;we need to add the smaller number to the accumulator because we hadn't done that yet
+		ST R3, RESULT    ;it's done! store that value in RESULT
+		BR CONVERSION
+
+CONVERSION               ;in this section, we will convert the hexadecimal value of the result into 2 decimal digits
+	; R0: the result in hexadecimal
+	; R1: Counter (100s)
+	; R2: Counter (10s)
+	; R3: #48
+	; R4: #-100
+	; R5: #100
+	LD R0, RESULT       
+	AND R1, R1, #0       ;we will use this register to determine the 100's place digit
+	AND R2, R2, #0       ;we will use this register to determine the 10's place digit
+	AND R4, R4, #0
+	AND R5, R5, #0
+	HUNDRED
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+		ADD R5, R5, #10
+	NOT R4, R5
+	ADD R4, R4, #1       ;loading #-100 into R4
+	LOOP_100s
+		ADD R0, R0, R4   ;keeps subtracting 100
+		BRn ADD100       ;if it is negative, we have exceeded the number of 100s in our total number, so lets exit and add back that 100
+		ADD R1, R1, #1   ;keeps track of how many 100s we have subtracted
+		BR LOOP_100s     ;takes us back to the start of the loop to subtract 100 again and add 1 to the counter
+	ADD100
+		ADD R0, R0, R5
+	LOOP_10s
+		ADD R0, R0, #-10 ;keeps subtracting 10
+		BRn DIGITS       ;if it is negative, we have exceeded the number of 10s in our total number
+		ADD R2, R2, #1   ;keeps track of how many 10s we have subtracted
+		BR LOOP_10s      ;takes us back to the start of the loop to subtract 10 again and add 1 to the counter
+	DIGITS
+		LD R3, DEC_TO_ASCII
+		ADD R1, R1, R3   ;turns the first digit into an ASCII number
+		ADD R2, R2, R3   ;turns the second digit into an ASCII number
+		ST R1, RESULT_A  ;this stores the first digit in RESULT_A
+		ST R2, RESULT_B  ;this stores the second digit in RESULT_B
+		ADD R0, R0, #10  ;this finds the third digit
+		ADD R0, R0, R3   ;turns the third digit into an ASCII number
+		ST R0, RESULT_C  ;this stores the third digit in RESULT_C
+		BR DISPLAY_RESULT
+
+DISPLAY_RESULT           ;we will process everything to display the result here
+	LEA R0, FINAL_MESSAGE
+	PUTS                 ;displays the final message before displaying the result
+	FIRST_DIGIT
+		LD R0, RESULT_A
+		LD R1, ASCII_TO_DEC
+		ADD R0, R0, R1   ;we want to check if the value is character 0 "48" so that we don't print 0 out
+		BRz SECOND_DIGIT ;if it is zero, move on to the next digit and don't print anything
+		LD R0, RESULT_A
+		OUT
+	SECOND_DIGIT
+		LD R0, RESULT_B
+		ADD R0, R0, R1   ;we want to check if the value is character 0 "48" so that we don't print 0 out
+		BRz THIRD_DIGIT  ;if it is zero, move on to the next digit and don't print anything
+		LD R0, RESULT_B
+		OUT
+	THIRD_DIGIT
+		LD R0, RESULT_C  ;we will display the third digit regardless of whether or not it is 0
+		OUT
+	LD R0, VALlf
+	OUT
+	HALT
+VALq .FILL #-113
+VAL0 .FILL #-48
+VAL9 .FILL #-57
+VAL100 .FILL #100
+A10 .FILL x3200
+A1 .FILL x3201
+ASCII_TO_DEC .FILL #-48
+DEC_TO_ASCII .FILL #48
+VALenter .FILL #-10
+VALlf .FILL #10
+NUMBER_A .FILL x3202
+PROMPT_A .STRINGZ "Enter Start Number (0-34): "
+PROMPT_B .STRINGZ "Enter End Number (0-34): "
+q_EXIT .STRINGZ "Thank you for playing!"
+C10 .FILL x3204
+C1 .FILL x3205
+NUMBER_B .FILL x3205
+RESULT .FILL x3206
+RESULT_A .FILL x3207
+RESULT_B .FILL x3208
+RESULT_C .FILL x3209
+FINAL_MESSAGE .STRINGZ "The sum of every fourth number between the two numbers is: "
+.END
